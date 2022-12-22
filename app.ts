@@ -7,37 +7,31 @@ document.body.appendChild(canvas);
 const GRID = 40;
 const STAGE = canvas.width / GRID;
 
-class Snake {
-  x: number;
-  y: number;
-  dx = 1;
-  dy = 1;
-  constructor(x: number, y: number) {
-    this.x = x;
-    this.y = y;
+class Player {
+  x = 0;
+  y = 0;
+  img = new Image();
+  constructor() {
+    this.img.src = "trump.png";
   }
   update() {
-    this.x += this.dx;
-    this.y += this.dy;
-    ctx.fillStyle = "green";
-    ctx.fillRect(this.x * GRID, this.y * GRID, GRID, GRID);
+    ctx.save();
+    ctx.drawImage(this.img, this.x * GRID + 5, this.y * GRID + 5, 30, 30);
+    ctx.restore();
   }
 }
 
 class Item {
-  x: number;
-  y: number;
-  constructor() {
-    this.x = Math.floor(Math.random() * STAGE);
-    this.y = Math.floor(Math.random() * STAGE);
-  }
+  x = Math.floor(Math.random() * STAGE);
+  y = Math.floor(Math.random() * STAGE);
+  constructor() {}
   update() {
     ctx.fillStyle = "red";
     ctx.fillRect(this.x * GRID, this.y * GRID, GRID, GRID);
   }
 }
 
-let snake = new Snake(0, 0);
+let player = new Player();
 let item = new Item();
 
 const glidLine = () => {
@@ -55,50 +49,52 @@ const glidLine = () => {
     ctx.stroke();
   }
 };
+
 glidLine();
+player.img.onload = () => player.update();
+item.update();
 
 const loop = () => {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
   item.update();
-  snake.update();
+  player.update();
+  glidLine();
 
-  if (snake.x < 0) snake.x = STAGE - 1;
-  if (snake.y < 0) snake.y = STAGE - 1;
-  if (snake.x > STAGE) snake.x = 0;
-  if (snake.y > STAGE) snake.y = 0;
+  if (player.x < 0) player.x = 0;
+  if (player.y < 0) player.y = 0;
+  if (player.x >= STAGE) player.x = STAGE - 1;
+  if (player.y >= STAGE) player.y = STAGE - 1;
 
-  if (snake.x === item.x && snake.y === item.y) {
+  if (player.x === item.x && player.y === item.y) {
     item.x = Math.floor(Math.random() * STAGE);
     item.y = Math.floor(Math.random() * STAGE);
   }
 };
 
-loop();
+setInterval(loop, 1000 / 15);
 
 document.addEventListener("keydown", (e) => {
   switch (e.key) {
     case "ArrowLeft":
     case "h":
-      snake.dx = -1;
-      snake.dy = 0;
-      loop();
+      
+    player.x += -1;
+    player.y += 0;
       break;
     case "ArrowRight":
     case "l":
-      snake.dx = 1;
-      snake.dy = 0;
-      loop();
+      player.x += 1;
+      player.y += 0;
       break;
     case "ArrowUp":
     case "k":
-      snake.dx = 0;
-      snake.dy = -1;
-      loop();
+      player.x += 0;
+      player.y += -1;
       break;
     case "ArrowDown":
     case "j":
-      snake.dx = 0;
-      snake.dy = 1;
-      loop();
+      player.x += 0;
+      player.y += 1;
       break;
   }
 });
